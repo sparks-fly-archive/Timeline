@@ -1,4 +1,5 @@
 timeline - Main Template
+timeline_add - Event hinzufügen
 timeline_faq - FAQ Template
 timeline_navigation - Navigation
 timeline_navigation_team - Team-Optionen
