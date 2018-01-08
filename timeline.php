@@ -15,7 +15,7 @@ $action = $mybb->input['action'];
 $uid = $mybb->user['uid'];
 
 // add a breadcrumb
-add_breadcrumb('Stadtgeschichte', "timeline.php");
+add_breadcrumb('Stadtgedächtnis', "timeline.php");
 
 // set navigation
 eval("\$timeline_nav = \"".$templates->get("timeline_navigation")."\";");
@@ -94,6 +94,57 @@ if($action == "do_add") {
 
 	// stuff is done, redirect to landing page
 	redirect("timeline.php", "{$lang->timeline_added}");
+}
+
+// show specific event
+if($action == "view") {
+	$eid = $mybb->input['id'];
+	
+	// get event matching id
+	$query = $db->query("SELECT * FROM ".TABLE_PREFIX."timeline WHERE eid = '$eid'");
+	$event = $db->fetch_array($query);
+	
+	// format date
+	$event['date'] = date("d.m.Y", $event['date']);
+	
+	// format author username
+	$user = get_user($event['uid']);
+	// if author doesn't exist, make Snorre author ;)
+	if(empty($user)) {
+		$user = get_user("1");
+	}
+	$user['profile_link'] = build_profile_link($user['username'], $event['uid']);
+	
+	// format tagged members
+	$members = explode(",", $event['tagged']);
+	foreach($members as $member) {
+		$member = get_user($member);
+		$member['profile_link'] = build_profile_link($member['username'], $member);
+		eval("\$member_bit .= \"".$templates->get("timeline_view_member_bit")."\";");
+	}
+	eval("\$member = \"".$templates->get("timeline_view_member")."\";");
+	
+	// set show specific event-template
+	eval("\$page = \"".$templates->get("timeline_view")."\";");
+	output_page($page);
+	
+}
+
+// show forums' timeline
+if($action == "history") {
+	
+	// get events 
+	$query = $db->query("SELECT * FROM ".TABLE_PREFIX."timeline ORDER BY date ASC");
+	while($event = $db->fetch_array($query)) {
+		// format date
+		$event['date'] = date("d.m.Y", $event['date']);
+		
+		eval("\$history_bit .= \"".$templates->get("timeline_view_history_bit")."\";");
+	}
+	
+	// set show forums timeline-template
+	eval("\$page = \"".$templates->get("timeline_history")."\";");
+	output_page($page);	
 }
 
 ?>

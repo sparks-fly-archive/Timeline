@@ -13,7 +13,7 @@ $l['timeline_add_desc'] = "An dieser Stelle kannst du selbst ein Ereignis in uns
 $l['timeline_event_name'] = "Ereignis-Name";
 $l['timeline_event_date'] = "Datum";
 $l['timeline_event_desc'] = "Beschreibung";
-$l['timeline_event_members'] = "Beteiligte Charaktere";
+$l['timeline_event_members'] = "Beteiligte Einwohner";
 
 $l['timeline_added'] = "Dein Event wurde hinzugefügt! Nach Überprüfung durch das Foren-Team wird es in der Timeline angezeigt.";
 ?>
