@@ -3,3 +3,6 @@ timeline_add - Event hinzufügen
 timeline_faq - FAQ Template
 timeline_navigation - Navigation
 timeline_navigation_team - Team-Optionen
+timeline_view - Einzelansicht Event
+timeline_view_member - Liste teilnehmende Charaktere
+timeline_view_member_bit - Listenpunkt Teilnehmender Charakter

@@ -77,12 +77,12 @@ if($action == "do_add") {
 	}
 	$members_uids = implode(",", $members_uids);
 
-	$ipdate = strtotime($mybb->get_input('year')."-".$mybb->get_input('month')."-".$mybb->get_input('day'));
+	$eventdate = strtotime($mybb->get_input('year')."-".$mybb->get_input('month')."-".$mybb->get_input('day'));
 
 	// data to insert into database
 	$new_record = array(
 		"title" => $db->escape_string($mybb->get_input('name')),
-		"date" => $ipdate,
+		"date" => $eventdate,
 		"description" => $db->escape_string($mybb->get_input('desc')),
 		"tagged" => $members_uids,
 		"uid" => (int)$uid,
