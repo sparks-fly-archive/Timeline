@@ -138,8 +138,28 @@ if($action == "history") {
 	while($event = $db->fetch_array($query)) {
 		// format date
 		$event['date'] = date("d.m.Y", $event['date']);
+
+		$months_translate = array(
+			"January" => "Januar",
+			"February" => "Februar",
+			"March" => "März",
+			"April" => "April",
+			"May" => "Mai",
+			"June" => "Juni",
+			"July" => "Juli",
+			"August" => "August",
+			"September" => "September",
+			"October" => "Oktober",
+			"November" => "November",
+			"December" => "Dezember"
+		);
 		
-		eval("\$history_bit .= \"".$templates->get("timeline_view_history_bit")."\";");
+		$end_day = date("d", $event['date']);
+		$end_month = date("F", $event['date']);
+		$end_year = date("Y", $event['date']);
+		$end_month = $months_translate[$end_month];
+		
+		eval("\$history_bit .= \"".$templates->get("timeline_history_bit")."\";");
 	}
 	
 	// set show forums timeline-template
