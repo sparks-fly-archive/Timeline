@@ -119,7 +119,7 @@ if($action == "view") {
 	$members = explode(",", $event['tagged']);
 	foreach($members as $member) {
 		$member = get_user($member);
-		$member['profile_link'] = build_profile_link($member['username'], $member);
+		$member['profile_link'] = build_profile_link($member['username'], $member['uid']);
 		eval("\$member_bit .= \"".$templates->get("timeline_view_member_bit")."\";");
 	}
 	eval("\$member = \"".$templates->get("timeline_view_member")."\";");
@@ -132,13 +132,24 @@ if($action == "view") {
 
 // show forums' timeline
 if($action == "history") {
+
+	$year = $db->escape_string($mybb->input['year']);
+	if(empty($year)) {
+		$year = "%";
+	}
+
+	// get years
+	$years_bit = "";
+	$query = $db->query("SELECT DISTINCT from_unixtime(date, '%Y') AS year FROM ".TABLE_PREFIX."timeline ORDER by date DESC");
+	while($years = $db->fetch_array($query)) {
+		$years_bit .= "<div class=\"nav-year trow2\"><a href=\"timeline.php?action=history&year={$years['year']}\">{$years['year']}</a></div>";
+	}
 	
 	// get events 
-	$query = $db->query("SELECT * FROM ".TABLE_PREFIX."timeline ORDER BY date ASC");
+	$query = $db->query("SELECT * FROM ".TABLE_PREFIX."timeline
+	WHERE from_unixtime(date, '%Y') = '$year' ORDER BY date ASC");
 	while($event = $db->fetch_array($query)) {
-		// format date
-		$event['date'] = date("d.m.Y", $event['date']);
-
+		$member_bit = "";
 		$months_translate = array(
 			"January" => "Januar",
 			"February" => "Februar",
@@ -159,7 +170,22 @@ if($action == "history") {
 		$end_year = date("Y", $event['date']);
 		$end_month = $months_translate[$end_month];
 		
+		// format tagged members
+		$members = explode(",", $event['tagged']);
+		foreach($members as $member) {
+			$member = get_user($member);
+			$member['profile_link'] = build_profile_link($member['username'], $member['uid']);
+			$member_bit .= "<div class=\"member-bit trow2\">{$member['profile_link']}</div>";
+		}
+
+		if(my_strlen($event['description']) > 250)
+		{
+			$event['description'] = my_substr($event['description'], 0, 250)."...";
+			$event['description'] .= "<a href=\"timeline.php?action=view&id={$event['eid']}\" target=\"_blank\">[ Weiterlesen ]</a>";
+		}
+
 		eval("\$history_bit .= \"".$templates->get("timeline_history_bit")."\";");
+		
 	}
 	
 	// set show forums timeline-template
