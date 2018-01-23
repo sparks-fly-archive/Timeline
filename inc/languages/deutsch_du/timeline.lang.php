@@ -16,4 +16,7 @@ $l['timeline_event_desc'] = "Beschreibung";
 $l['timeline_event_members'] = "Beteiligte Einwohner";
 
 $l['timeline_added'] = "Dein Event wurde hinzugefügt! Nach Überprüfung durch das Foren-Team wird es in der Timeline angezeigt.";
+
+$l['timeline_rumor'] = "Was erzählt man sich?";
+$l['timeline_rumor_desc'] = "Dieses Feld ist <em>optional</em>! Hier hast du Platz, deinen potenziellen Mitspielern darzulegen, woher sie deinen Charakter kennen könnten. War er in besondere Ereignisse involviert? Was erzählt man sich über ihn? Gibt es Gerüchte, die über ihn herumgehen? Dieses Feld gilt als eine Art <em>Starthilfe</em> für Szenen, kann die Charakterkonzeption aber auch vorantreiben!"
 ?>

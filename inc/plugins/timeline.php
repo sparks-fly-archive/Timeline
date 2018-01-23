@@ -46,6 +46,10 @@ function timeline_install()
   				PRIMARY KEY (`eid`)
   			) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;");
 	}
+
+	if($db->table_exists("characters")) {
+		$db->query("ALTER TABLE `".TABLE_PREFIX."characters` ADD `rumor` text NOT NULL AFTER `fact`;");
+	}
 }
 
 function timeline_is_installed()
@@ -69,6 +73,11 @@ function timeline_uninstall()
 	if($db->table_exists("timeline_users")) {
 		$db->query("DROP TABLE `mybb_timeline_users`");
 	}
+
+  	if($db->field_exists("rumor", "characters"))
+ 	{
+  	  $db->drop_column("characters", "rumor");
+  	}
 }
 
 function timeline_activate()
