@@ -193,4 +193,47 @@ if($action == "history") {
 	output_page($page);	
 }
 
+// User-Timeline
+if($mybb->input['action'] == "utimeline") {
+	
+	$archiv = $mybb->settings['inplaytracker_archiv'];
+	$ipforum = $mybb->settings['inplaytracker_forum'];
+	
+	$szenen_bit = "";
+	$query = $db->query("SELECT * , ".TABLE_PREFIX."threads.tid, ".TABLE_PREFIX."threads.partners, ".TABLE_PREFIX."timeline_users.description,  ".TABLE_PREFIX."threads.subject FROM ".TABLE_PREFIX."threads
+	LEFT JOIN ".TABLE_PREFIX."forums ON ".TABLE_PREFIX."forums.fid = ".TABLE_PREFIX."threads.fid
+	LEFT JOIN ".TABLE_PREFIX."timeline_users ON ".TABLE_PREFIX."timeline_users.tid = ".TABLE_PREFIX."threads.tid
+	WHERE (".TABLE_PREFIX."forums.parentlist LIKE '%$ipforum%' OR ".TABLE_PREFIX."forums.parentlist LIKE '%,$archiv%')
+	AND ".TABLE_PREFIX."threads.visible = '1'
+	GROUP by ".TABLE_PREFIX."threads.tid
+	ORDER by ".TABLE_PREFIX."threads.ipdate ASC
+	");
+	while($szenen = $db->fetch_array($query)) {
+		$ownuid = $mybb->user['uid'];
+		$szenen_partner = ",".$szenen['partners'].",";
+		if(preg_match("/,$ownuid,/i", $szenen_partner)) {
+			eval("\$szenen_bit .= \"".$templates->get("characp_timeline_bit")."\";");
+		}	
+	}
+	
+    eval("\$page = \"".$templates->get("timeline_utimeline")."\";");
+    output_page($page);
+}
+
+if($mybb->input['action'] == "do_timeline") {
+	$new_record = array(
+		"description" => $db->escape_string($mybb->input['description']),
+		"tid" => (int)$mybb->input['tid'],
+		"uid" => $uid
+	);
+	if(!empty($mybb->input['eid'])) {
+		$db->update_query("timeline_users", $new_record, "eid = '{$mybb->input['eid']}'");
+	}
+	else {
+		$db->insert_query("timeline_users", $new_record);
+	}
+	redirect("timeline.php?action=utimeline", "Die Beschreibung wurde hinzugefügt!");
+	
+}
+
 ?>
