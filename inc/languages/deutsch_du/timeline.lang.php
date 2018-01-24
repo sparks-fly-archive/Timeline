@@ -18,5 +18,8 @@ $l['timeline_event_members'] = "Beteiligte Einwohner";
 $l['timeline_added'] = "Dein Event wurde hinzugefügt! Nach Überprüfung durch das Foren-Team wird es in der Timeline angezeigt.";
 
 $l['timeline_rumor'] = "Was erzählt man sich?";
-$l['timeline_rumor_desc'] = "Dieses Feld ist <em>optional</em>! Hier hast du Platz, deinen potenziellen Mitspielern darzulegen, woher sie deinen Charakter kennen könnten. War er in besondere Ereignisse involviert? Was erzählt man sich über ihn? Gibt es Gerüchte, die über ihn herumgehen? Dieses Feld gilt als eine Art <em>Starthilfe</em> für Szenen, kann die Charakterkonzeption aber auch vorantreiben!"
+$l['timeline_rumor_desc'] = "Dieses Feld ist <em>optional</em>! Hier hast du Platz, deinen potenziellen Mitspielern darzulegen, woher sie deinen Charakter kennen könnten. War er in besondere Ereignisse involviert? Was erzählt man sich über ihn? Gibt es Gerüchte, die über ihn herumgehen? Dieses Feld gilt als eine Art <em>Starthilfe</em> für Szenen, kann die Charakterkonzeption aber auch vorantreiben!";
+$l['timeline_send_description'] = "Beschreibung abschicken";
+$l['timeline_description_desc'] = "Für jede Szene, die du am Forum spielst, ist es dir möglich, eine Kurzbeschreibung anzugeben! Was hat dein Charakter erlebt? Auf wen ist er getroffen, in welchem Rahmen fand das ganze statt? Die hier angegebenen Informationen werden in deiner persönlichen Charakter-Chronik angezeigt und sind für alle einsehbar! Szenen, die für deinen Charakter nicht (mehr) relevant sind, kannst du einfach ignorieren - ohne Beschreibung werden diese in deiner Chronik auch nicht angezeigt. :)";
+$l['timeline_character_chronicles'] = "Zur Charakter-Chronik";
 ?>

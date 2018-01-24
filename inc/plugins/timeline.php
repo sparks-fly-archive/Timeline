@@ -42,7 +42,7 @@ function timeline_install()
 			  	`eid` int(11) NOT NULL AUTO_INCREMENT,
   				`uid` int(11) NOT NULL,
   				`tid` int(11) NOT NULL,
-  				`description` text NOT NULL,
+  				`description` text NOT NULL
   				PRIMARY KEY (`eid`)
   			) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;");
 	}
