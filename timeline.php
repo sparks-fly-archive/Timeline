@@ -18,13 +18,12 @@ $uid = $mybb->user['uid'];
 add_breadcrumb('Stadtgedächtnis', "timeline.php");
 
 // set navigation
-eval("\$timeline_nav = \"".$templates->get("timeline_navigation")."\";");
-
-// set navigation so only team members can see certain options
-$timeline_nav_team = "";
 if($mybb->usergroup['cancp'] == "1") {
-	eval("\$timeline_nav_team = \"".$templates->get("timeline_navigation_team")."\";");	
+	$timeline_add_event = "	<tr>
+		<td class=\"trow2 smalltext\"><i class=\"fa fa-pencil\"></i> <a href=\"timeline.php?action=add\">{$lang->timeline_send}</a></td>
+	</tr>";
 }
+eval("\$timeline_nav = \"".$templates->get("timeline_navigation")."\";");
 
 // landing page
 if(empty($action)) {
@@ -48,6 +47,12 @@ if($action == "add") {
 	// format date dropdowns
 	for($i=1 ; $i <=31; $i++) {
     	$day_bit .= "<option value=\"{$i}\">{$i}</option>";
+  	}
+
+  	$query = $db->query("SELECT uid, username FROM ".TABLE_PREFIX."users 
+  		ORDER BY username ASC");
+  	while($user = $db->fetch_array($query)) {
+  		$user_bit .= "<option value=\"{$user['uid']}\">{$user['username']}</option>";
   	}
 
   	$months = array("01" => "Januar", "02" => "Februar", "03" => "März", "04" => "April", "05" => "Mai", "06" => "Juni", "07" => "Juli", "08" => "August", "09" => "September", "10" => "Oktober", "11" => "November", "12" => "Dezember");
@@ -85,7 +90,7 @@ if($action == "do_add") {
 		"date" => $eventdate,
 		"description" => $db->escape_string($mybb->get_input('desc')),
 		"tagged" => $members_uids,
-		"uid" => (int)$uid,
+		"uid" => (int)$mybb->get_input('user'),
 		"accepted" => (int)"1"
 	);
 
@@ -140,7 +145,7 @@ if($action == "history") {
 
 	// get years
 	$years_bit = "";
-	$query = $db->query("SELECT DISTINCT from_unixtime(date, '%Y') AS year FROM ".TABLE_PREFIX."timeline ORDER by date DESC");
+	$query = $db->query("SELECT DISTINCT from_unixtime(date, '%Y') AS year FROM ".TABLE_PREFIX."timeline ORDER by CAST(date AS SIGNED) ASC");
 	while($years = $db->fetch_array($query)) {
 		$years_bit .= "<div class=\"nav-year trow2\"><a href=\"timeline.php?action=history&year={$years['year']}\">{$years['year']}</a></div>";
 	}
@@ -212,7 +217,8 @@ if($mybb->input['action'] == "utimeline") {
 		$ownuid = $mybb->user['uid'];
 		$szenen_partner = ",".$szenen['partners'].",";
 		if(preg_match("/,$ownuid,/i", $szenen_partner)) {
-			eval("\$szenen_bit .= \"".$templates->get("characp_timeline_bit")."\";");
+			$szenen['subject'] = "<a href=\"showthread.php?tid={$szenen['tid']}\" target=\"blank_\">{$szenen['subject']}</a>";
+			eval("\$szenen_bit .= \"".$templates->get("timeline_utimeline_bit")."\";");
 		}	
 	}
 	
@@ -234,6 +240,83 @@ if($mybb->input['action'] == "do_timeline") {
 	}
 	redirect("timeline.php?action=utimeline", "Die Beschreibung wurde hinzugefügt!");
 	
+}
+
+if($mybb->input['action'] == "user") {
+	$user_uid = $db->escape_string($mybb->input['uid']);
+	if(empty($user_uid)) {
+		$user_uid = $uid;
+	}
+	$user = get_user($user_uid);
+	$user['profile_link'] = build_profile_link($user['username'], $user['uid']);
+
+	// get rumor
+	$query = $db->query("SELECT rumor FROM ".TABLE_PREFIX."characters 
+		WHERE uid = '$user_uid'");
+	$rumor = $db->fetch_field($query, "rumor");
+	if(empty($rumor)) {
+		$rumor = "Zu diesem Einwohner liegen keine Informationen vor.";
+	}
+
+	// get city's timeline
+	$query = $db->query("SELECT * FROM ".TABLE_PREFIX."timeline
+		ORDER BY date ASC");
+	while($event = $db->fetch_array($query)) {
+		$event_charas = ",".$event['tagged'].",";
+		if(preg_match("/,$user_uid,/i", $event_charas)) {
+		$member_bit = "";
+		$months_translate = array(
+			"January" => "Januar",
+			"February" => "Februar",
+			"March" => "März",
+			"April" => "April",
+			"May" => "Mai",
+			"June" => "Juni",
+			"July" => "Juli",
+			"August" => "August",
+			"September" => "September",
+			"October" => "Oktober",
+			"November" => "November",
+			"December" => "Dezember"
+		);
+		
+		$end_day = date("d", $event['date']);
+		$end_month = date("F", $event['date']);
+		$end_year = date("Y", $event['date']);
+		$end_month = $months_translate[$end_month];
+		
+		// format tagged members
+		$members = explode(",", $event['tagged']);
+		foreach($members as $member) {
+			$member = get_user($member);
+			$member['profile_link'] = build_profile_link($member['username'], $member['uid']);
+			$member_bit .= "<div class=\"member-bit trow2\">{$member['profile_link']}</div>";
+		}
+
+		if(my_strlen($event['description']) > 250)
+		{
+			$event['description'] = my_substr($event['description'], 0, 250)."...";
+			$event['description'] .= "<a href=\"timeline.php?action=view&id={$event['eid']}\" target=\"_blank\">[ Weiterlesen ]</a>";
+		}
+			eval("\$events_bit .= \"".$templates->get("timeline_history_bit")."\";");
+		}
+	}			
+
+	// get inplay timeline
+	$query = $db->query("SELECT *, ".TABLE_PREFIX."timeline_users.description FROM ".TABLE_PREFIX."timeline_users
+		LEFT JOIN ".TABLE_PREFIX."threads ON ".TABLE_PREFIX."threads.tid = ".TABLE_PREFIX."timeline_users.tid
+		WHERE ".TABLE_PREFIX."timeline_users.uid = '$user_uid'
+		AND ".TABLE_PREFIX."timeline_users.description != ''
+		ORDER BY ipdate ASC ");
+	$inplay_bit = "";
+	while($uevent = $db->fetch_array($query)) {
+		$uevent['date'] = date("d.m.Y", $uevent['ipdate']);
+		$uevent['link'] = "<strong>{$uevent['date']}</strong> &raquo; <a href=\"showthread.php?tid={$uevent['tid']}\" target=\"blank_\">{$uevent['description']}</a>";
+		eval("\$inplay_bit .= \"".$templates->get("timeline_user_inplay_bit")."\";");
+	}
+
+    eval("\$page = \"".$templates->get("timeline_user")."\";");
+    output_page($page);
 }
 
 ?>

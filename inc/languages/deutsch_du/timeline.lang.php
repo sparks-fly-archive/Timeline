@@ -23,4 +23,5 @@ $l['timeline_send_description'] = "Beschreibung abschicken";
 $l['timeline_description_desc'] = "Für jede Szene, die du am Forum spielst, ist es dir möglich, eine Kurzbeschreibung anzugeben! Was hat dein Charakter erlebt? Auf wen ist er getroffen, in welchem Rahmen fand das ganze statt? Die hier angegebenen Informationen werden in deiner persönlichen Charakter-Chronik angezeigt und sind für alle einsehbar! Szenen, die für deinen Charakter nicht (mehr) relevant sind, kannst du einfach ignorieren - ohne Beschreibung werden diese in deiner Chronik auch nicht angezeigt. :)";
 $l['timeline_character_chronicles'] = "Zur Charakter-Chronik";
 $l['timeline_character_nav'] = "Charakter-Chronik ausfüllen";
+$l['timeline_character'] = "Inplay-Chronik";
 ?>

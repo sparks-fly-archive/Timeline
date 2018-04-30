@@ -42,7 +42,7 @@ function timeline_install()
 			  	`eid` int(11) NOT NULL AUTO_INCREMENT,
   				`uid` int(11) NOT NULL,
   				`tid` int(11) NOT NULL,
-  				`description` text NOT NULL
+  				`description` text NOT NULL,
   				PRIMARY KEY (`eid`)
   			) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;");
 	}
@@ -83,6 +83,74 @@ function timeline_uninstall()
 function timeline_activate()
 {
 	global $db, $mybb;
+
+	// CSS	
+	$css = array(
+		'name' => 'timeline.css',
+		'tid' => 1,
+		"stylesheet" =>	'.nav-year {
+	float: left;
+	margin: 3px;
+	width: 12%;
+	padding: 10px;
+	text-align: center;
+	letter-spacing: 2px;
+	font-size: 9px;
+}
+
+.member-bit {
+	display: inline-block;
+	padding: 5px;
+	margin: 3px;
+	text-align: center;
+	letter-spacing: 1px;
+	font-size: 8px;
+	text-transform: uppercase;
+}
+
+.end_date_cal {
+	display: block;
+	background: rgba(255,255,255,.6);
+	text-align: center;
+	height: 75px;
+}
+
+.end_date_top {
+	background: #E04343;
+	padding: 1px;
+	font-size: 9px;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	color: rgba(255,255,255,.8) !Important;
+}
+
+.end_date_day {
+	font-size: 35px;
+	font-style: italic;
+	color: rgba(0,0,0,.7);
+	margin: 3px;
+	margin-top: 10px;
+}
+
+.end_date_month {
+	font-size: 9px;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	margin: 3px;
+}',
+		'cachefile' => $db->escape_string(str_replace('/', '', timeline.css)),
+		'lastmodified' => time()
+	);
+
+	require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
+
+	$sid = $db->insert_query("themestylesheets", $css);
+	$db->update_query("themestylesheets", array("cachefile" => "css.php?stylesheet=".$sid), "sid = '".$sid."'", 1);
+
+	$tids = $db->simple_select("themes", "tid");
+	while($theme = $db->fetch_array($tids)) {
+		update_theme_stylesheet_list($theme['tid']);
+	}
 
 	  include MYBB_ROOT."/inc/adminfunctions_templates.php";
 	find_replace_templatesets("characp_facts", "#".preg_quote('<div align="center">')."#i", '{$facts_rumor} <div align="center">');
@@ -227,7 +295,7 @@ if(use_xmlhttprequest == "1")
     $("#members").select2({
         placeholder: "{$lang->search_user}",
         minimumInputLength: 2,
-        maximumSelectionSize: '',
+        maximumSelectionSize: \'\',
         multiple: true,
         ajax: { // instead of writing the function to execute the request we use Select2\'s convenient helper
             url: "xmlhttp.php?action=get_users",
@@ -248,7 +316,7 @@ if(use_xmlhttprequest == "1")
                 var newqueries = [];
                 exp_queries = query.split(",");
                 $.each(exp_queries, function(index, value ){
-                    if(value.replace(/\s/g, '') != "")
+                    if(value.replace(/\s/g, \'\') != "")
                     {
                         var newquery = {
                             id: value.replace(/,\s?/g, ","),
@@ -448,13 +516,16 @@ if(use_xmlhttprequest == "1")
 		<td class="trow2 smalltext"><i class="fas fa-book"></i> <a href="timeline.php?action=history">{$lang->timeline}</a></td>
 	</tr>
 	<tr>
+		<td class="trow2 smalltext"><i class="fa fa-user"></i> <a href="timeline.php?action=user">{$lang->timeline_character_chronicles}</a></td>
+	</tr>
+	<tr>
 		<td class="tcat"><strong>{$lang->timeline_control}</strong></td>
 	</tr>
 	<tr>
 		<td class="trow2 smalltext"><i class="fas fa-pencil-alt"></i> <a href="timeline.php?action=add">{$lang->timeline_send}</a></td>
 	</tr>
 	<tr>
-		<td class="trow1" smalltext"><i class="fas fa-pencil-alt"></i> <a href="timeline.php?action=utimeline">{$lang->timeline_character_nav}</a></td>
+		<td class="trow1 smalltext"><i class="fas fa-pencil-alt"></i> <a href="timeline.php?action=utimeline">{$lang->timeline_character_nav}</a></td>
 	</tr>
 	{$timeline_nav_team}
 </tbody>
@@ -549,6 +620,87 @@ if(use_xmlhttprequest == "1")
 	);
 	$db->insert_query("templates", $insert_array);
 
+	  $insert_array = array(
+		'title'		=> 'timeline_user',
+		'template'	=> $db->escape_string('<html>
+<head>
+<title>{$mybb->settings[\'bbname\']} - {$lang->timeline} - {$user[\'username\']}</title>
+{$headerinclude}
+</head>
+<body>
+{$header}
+<table width="100%" border="0" align="center">
+<tr>
+<td width="23%" valign="top">
+{$timeline_nav}
+</td>
+<td valign="top">
+<table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
+<tr>
+<td class="thead" colspan="{$colspan}"><strong>{$lang->timeline} - {$user[\'username\']}</strong></td>
+</tr>
+<tr>
+<td class="trow2" style="padding: 10px; text-align: justify;">
+<div style="width: 95%; margin: auto; padding: 8px;  font-size: 12px; line-height: 1.5em;" class="trow1">
+<table border="0" cellspacing="5" cellpadding="5" class="tborder">
+	<tr>
+		<td class="trow2" align="justify" valign="top">
+			<table class="tborder"cellspacing="4" cellpadding="4">
+				<tr>
+					<td colspan="2">
+						<div class="thead">&bull; {$user[\'username\']}</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="190px">			
+						<img src="{$user[\'avatar\']}" width="190px" /><br />
+					</td>
+					<td>
+						<div class="tcat">&bull; {$lang->timeline_rumor}</div>
+						<div style="padding: 5px; text-align: justify; line-height: 1.3em; max-height: 130px; overflow: auto;">{$rumor}</div>
+					</td>
+				</tr>
+			</table>
+			{$events_bit}
+			<table class="tborder" cellspacing="5" cellpadding="5">
+				<tr>
+					<td class="tcat">&bull; {$lang->timeline_character}</td>
+				</tr>
+					{$inplay_bit}
+			</table>
+		</td>
+	</tr>
+</table>
+	<br />
+</div>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+{$footer}
+</body>
+</html>'),
+		'sid'		=> '-1',
+		'version'	=> '',
+		'dateline'	=> TIME_NOW
+	);
+	$db->insert_query("templates", $insert_array);
+
+  $insert_array = array(
+		'title'		=> 'timeline_user_inplay_bit',
+		'template'	=> $db->escape_string('<tr>
+	<td class="trow1 smalltext">
+		{$uevent[\'link\']}
+	</td>
+</tr>'),
+		'sid'		=> '-1',
+		'version'	=> '',
+		'dateline'	=> TIME_NOW
+	);
+	$db->insert_query("templates", $insert_array);
+
   $insert_array = array(
 		'title'		=> 'timeline_utimeline',
 		'template'	=> $db->escape_string('<html>
@@ -561,7 +713,7 @@ if(use_xmlhttprequest == "1")
 <table width="100%" border="0" align="center">
 <tr>
 <td width="23%" valign="top">
-{$menu}
+{$timeline_nav}
 </td>
 <td valign="top">
 <table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
@@ -610,7 +762,7 @@ if(use_xmlhttprequest == "1")
 		</td>
 	</tr>
 </table>
-</form'>),
+</form>'),
 		'sid'		=> '-1',
 		'version'	=> '',
 		'dateline'	=> TIME_NOW
@@ -642,6 +794,14 @@ if(use_xmlhttprequest == "1")
 function timeline_deactivate()
 {
 	global $db, $mybb;
+
+	// drop css
+	require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
+	$db->delete_query("themestylesheets", "name = 'timeline.css'");
+	$query = $db->simple_select("themes", "tid");
+	while($theme = $db->fetch_array($query)) {
+		update_theme_stylesheet_list($theme['tid']);
+	}
 
 	include MYBB_ROOT."/inc/adminfunctions_templates.php";
 	find_replace_templatesets("characp_facts", "#".preg_quote('{$facts_rumor}')."#i", '', 0);
